@@ -5,10 +5,25 @@ require 'json'
 
 require 'citymapper'
 
-routes_data = JSON.parse(File.read('data/northern_routes.json'))
-stations_data = JSON.parse(File.read('data/northern_stations.json'))
+lines = [
+  "bakerloo",
+  "central",
+  "circle",
+  "district",
+  "hammersmith-city",
+  "jubilee",
+  "metropolitan",
+  "northern",
+  "piccadilly",
+  "victoria",
+  "waterloo-city"
+]
+
+routes_data = lines.map { |line| JSON.parse(File.read("data/#{line}/routes.json")) }
+stations_data = lines.map { |line| JSON.parse(File.read("data/#{line}/stations.json")) }.flatten
 
 network = Citymapper::RglNetwork.from_data(routes_data, stations_data)
+network.write_to_jpg
 
 if ARGV.size != 2
   puts "Usage: citymapper [from] [to]"

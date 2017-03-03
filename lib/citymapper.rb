@@ -21,9 +21,14 @@ module Citymapper
     def self.from_data(routes_data, stations_data)
       stations_repository = StationsRepository.new(stations_data)
 
-      routes = routes_data["orderedLineRoutes"].map { |route| route["naptanIds"] }
-      graph_edges = routes.map { |r| r.each_cons(2).to_a }.flatten
-      rgl_graph = RGL::DirectedAdjacencyGraph[*graph_edges]
+      rgl_graph = RGL::DirectedAdjacencyGraph.new
+      routes_data.each do |line_routes_data|
+        line_routes_data["orderedLineRoutes"].each do |route|
+          graph_edges = route["naptanIds"].each_cons(2).to_a
+          rgl_graph.add_edges(*graph_edges)
+        end
+      end
+      rgl_graph = rgl_graph.to_undirected
 
       new(rgl_graph, stations_repository)
     end
